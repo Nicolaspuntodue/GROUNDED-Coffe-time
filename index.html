@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GROUNDED — Whole food bar &amp; coffee</title>
+  <meta name="description" content="GROUNDED is a whole-food bar and coffee shop. Avocado toast, açaí bowls, matcha and slow coffee — made from real, unprocessed ingredients." />
+  <meta name="theme-color" content="#F4EFDF" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <meta property="og:title" content="GROUNDED — Whole food bar & coffee" />
+  <meta property="og:description" content="Rooted in every bite. Whole foods, slow coffee." />
+  <meta property="og:image" content="assets/img/hands.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,400..900,100&family=Instrument+Sans:wght@400;500;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+      "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.13.0/index.js",
+      "gsap/": "https://cdn.jsdelivr.net/npm/gsap@3.13.0/",
+      "lenis": "https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.mjs"
+    }
+  }
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <div class="loader" aria-hidden="true">
+    <div class="loader__count"><span data-count>0</span>%</div>
+    <div class="loader__word">grounded</div>
+  </div>
+
+  <canvas class="stage" aria-hidden="true"></canvas>
+
+  <header class="nav">
+    <a class="nav__logo" href="#top" aria-label="GROUNDED home">
+      <svg viewBox="0 0 40 48" aria-hidden="true"><path d="M20 2c7 0 11 7 13 15 3 11 3 27-13 29C4 44 4 28 7 17 9 9 13 2 20 2Z" fill="currentColor"/><circle cx="20" cy="29" r="7" fill="var(--butter)"/></svg>
+      <span>GROUNDED</span>
+    </a>
+    <nav class="nav__links" aria-label="Main">
+      <a href="#story">Story</a>
+      <a href="#menu">Menu</a>
+      <a href="#visit">Visit</a>
+    </nav>
+    <button class="nav__basket" type="button" aria-label="Open order" data-open-basket>
+      Order <span class="nav__count" data-basket-count>0</span>
+    </button>
+  </header>
+
+  <main id="main">
+    <!-- 1. HERO: whole avocado -->
+    <section class="hero" id="top" data-pose="hero">
+      <p class="hand hero__note">whole food bar &amp; coffee</p>
+      <h1 class="hero__title">
+        <span class="line"><span>Rooted</span></span>
+        <span class="line"><span>in every</span></span>
+        <span class="line"><span class="hero__accent">bite.</span></span>
+      </h1>
+      <ul class="hero__tags">
+        <li>100% whole ingredients</li>
+        <li>No refined sugar</li>
+      </ul>
+      <p class="hero__lede">Real food from real ground. Avocados halved to order, bowls built from the whole fruit, coffee poured slow.</p>
+      <a class="btn btn--primary" href="#menu"><span data-text="See the menu">See the menu</span></a>
+      <div class="hero__scroll hand" aria-hidden="true">scroll &darr;</div>
+    </section>
+
+    <!-- 2. OPENING: the fruit is sliced and twisted as you scroll -->
+    <section class="step" data-pose="seam">
+      <p class="hand step__n">01 —</p>
+      <h2 class="display step__t">Slice.</h2>
+      <p class="step__c">Every avocado is cut the moment you order it.</p>
+    </section>
+    <section class="step step--r" data-pose="twist">
+      <p class="hand step__n">02 —</p>
+      <h2 class="display step__t">Twist.</h2>
+      <p class="step__c">A gentle turn, the way it's always been done.</p>
+    </section>
+
+    <!-- 3. SOURCE + STATS: avocado lies open -->
+    <section class="source" id="story" data-pose="split">
+      <p class="hand">03 — open</p>
+      <h2 class="display source__title reveal">The real source<br/>of every bite.</h2>
+      <p class="source__lede reveal">Nothing arrives in a packet. If it grew in the ground or on a tree, it can come into our kitchen. Everything else stays outside.</p>
+      <dl class="stats">
+        <div class="stat reveal"><dt><span data-num="0">0</span>g</dt><dd>refined sugar</dd></div>
+        <div class="stat reveal"><dt><span data-num="100">0</span>%</dt><dd>whole ingredients</dd></div>
+        <div class="stat reveal"><dt><span data-num="12">0</span></dt><dd>local growers</dd></div>
+        <div class="stat reveal"><dt><span data-num="6">0</span>am</dt><dd>prepped fresh daily</dd></div>
+      </dl>
+    </section>
+
+    <!-- 3. A v o c a d o: halves drift to the edges -->
+    <section class="word" data-pose="wide">
+      <h2 class="word__big" aria-label="Avocado">
+        <span>A</span><span>v</span><span>o</span><span>c</span><span>a</span><span>d</span><span>o</span>
+      </h2>
+      <div class="word__cols">
+        <p class="reveal">One ripe avocado, halved the moment you order. Never pre-mashed, never sitting under a lamp.</p>
+        <p class="reveal">Whole avocados halved this month <span class="counter" data-num="1840">0</span></p>
+      </div>
+    </section>
+
+    <!-- 4. PIT: the stone pops out -->
+    <section class="pit" data-pose="pit">
+      <p class="hand pit__note reveal">the good stuff is at the centre</p>
+      <h2 class="display pit__title reveal">Grounded<br/>to the core.</h2>
+      <p class="pit__lede reveal">Healthy fats, fibre, potassium. The way nature packed it — we just don't take anything out.</p>
+    </section>
+
+    <!-- 5. MENU: pinned horizontal scroll -->
+    <section class="menu" id="menu" data-pose="away">
+      <div class="menu__pin">
+        <header class="menu__head">
+          <h2 class="display">Explore<br/>the menu</h2>
+          <p class="hand">scroll &amp; add to your order &rarr;</p>
+        </header>
+        <div class="menu__track" data-track></div>
+      </div>
+    </section>
+
+    <!-- 6. STATEMENT -->
+    <section class="statement" data-pose="away">
+      <div class="marquee" aria-hidden="true"><div class="marquee__inner"><span>KEEP IT GROUNDED · KEEP IT GROUNDED · KEEP IT GROUNDED ·&nbsp;</span><span>KEEP IT GROUNDED · KEEP IT GROUNDED · KEEP IT GROUNDED ·&nbsp;</span></div></div>
+      <div class="statement__grid">
+        <h2 class="display statement__title reveal">Whole food. Slow coffee. <em>Nothing</em> in between.</h2>
+        <figure class="statement__img statement__img--a"><img src="assets/img/hands.webp" alt="A cook halving a ripe avocado on a wooden board" loading="lazy" width="1000" height="1241" /></figure>
+        <figure class="statement__img statement__img--b"><img src="assets/img/farm.webp" alt="Crates of avocados and bananas just in from a local grower" loading="lazy" width="1000" height="1241" /></figure>
+        <figure class="statement__img statement__img--c"><img src="assets/img/interior.webp" alt="Inside the café: wooden counter, espresso machine and jars of granola" loading="lazy" width="1600" height="893" /></figure>
+        <p class="statement__copy reveal">We started GROUNDED because eating well shouldn't need a label to decode. Twelve growers within driving distance, one short menu, and a promise: if you can't picture where it grew, it's not on the counter.</p>
+      </div>
+      <img class="float" data-speed="-0.25" src="assets/img/cut-blueberry.webp" alt="" style="--x:4%;--y:6%;--s:96px" />
+      <img class="float" data-speed="0.35" src="assets/img/cut-bean.webp" alt="" style="--x:90%;--y:26%;--s:84px" />
+      <img class="float" data-speed="-0.4" src="assets/img/cut-mint.webp" alt="" style="--x:84%;--y:80%;--s:130px" />
+      <img class="float" data-speed="0.2" src="assets/img/cut-banana.webp" alt="" style="--x:2%;--y:64%;--s:90px" />
+      <img class="float" data-speed="0.5" src="assets/img/cut-lime.webp" alt="" style="--x:46%;--y:96%;--s:100px" />
+      <img class="float" data-speed="-0.3" src="assets/img/cut-granola.webp" alt="" style="--x:58%;--y:4%;--s:110px" />
+    </section>
+
+    <!-- 7. REVIEWS -->
+    <section class="reviews" data-pose="away" aria-labelledby="reviews-title">
+      <h2 class="display reviews__title" id="reviews-title">Regulars say!</h2>
+      <div class="reviews__row">
+        <div class="reviews__inner">
+          <blockquote><p>Best avocado toast in town, no contest.</p><cite>@sunday.giulia</cite></blockquote>
+          <blockquote><p>My 7am ritual now.</p><cite>@marco.runs</cite></blockquote>
+          <blockquote><p>The açaí bowl tastes like actual fruit.</p><cite>@thegreenpantry</cite></blockquote>
+          <blockquote><p>Finally, coffee that isn't rushed.</p><cite>@slowpour</cite></blockquote>
+          <blockquote><p>Feels good after, not just during.</p><cite>@lea.eats</cite></blockquote>
+          <blockquote><p>Clean, simple, unreal matcha.</p><cite>@matchamornings</cite></blockquote>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. VISIT: avocado comes back whole -->
+    <section class="visit" id="visit" data-pose="finale">
+      <p class="hand reveal">pull up a chair</p>
+      <h2 class="visit__title reveal">Come sit<br/>with us.</h2>
+      <div class="visit__info">
+        <div class="reveal"><h3>Hours</h3><p>Mon–Fri 7:00–18:00<br/>Sat–Sun 8:00–16:00</p></div>
+        <div class="reveal"><h3>Find us</h3><p>Opening soon<br/>in your neighbourhood</p></div>
+        <div class="reveal"><h3>Say hello</h3><p><a href="mailto:hello@grounded.cafe">hello@grounded.cafe</a></p></div>
+      </div>
+      <div class="visit__ctas">
+        <button class="btn btn--primary" type="button" data-open-basket><span data-text="Order for pickup">Order for pickup</span></button>
+        <a class="btn btn--ghost" href="#menu"><span data-text="Back to the menu">Back to the menu</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__big" aria-hidden="true">GROUNDED</div>
+    <div class="footer__row">
+      <p>Whole food bar &amp; coffee. Picked ripe, served whole.</p>
+      <p>&copy; 2026 GROUNDED · Concept demo — nothing is charged.</p>
+    </div>
+  </footer>
+
+  <aside class="basket" aria-label="Your order" inert>
+    <div class="basket__scrim" data-close-basket></div>
+    <div class="basket__panel" role="dialog" aria-modal="true" aria-labelledby="basket-title">
+      <header class="basket__head">
+        <h2 id="basket-title" class="display">Your order</h2>
+        <button type="button" class="basket__close" data-close-basket aria-label="Close order">&times;</button>
+      </header>
+      <ul class="basket__list" data-basket-list></ul>
+      <p class="basket__empty hand" data-basket-empty>Your tray is empty. Go pick something whole.</p>
+      <form class="basket__form" data-basket-form>
+        <div class="basket__total"><span>Total</span><strong data-basket-total>€0.00</strong></div>
+        <label>Name<input name="name" required autocomplete="given-name" maxlength="40" /></label>
+        <label>Pickup time
+          <select name="time" required>
+            <option value="">Choose a time</option>
+            <option>in 15 minutes</option><option>in 30 minutes</option><option>in 1 hour</option>
+          </select>
+        </label>
+        <button class="btn btn--primary btn--full" type="submit"><span data-text="Place order">Place order</span></button>
+        <p class="basket__note">Concept demo — no payment is taken.</p>
+      </form>
+      <div class="basket__done" data-basket-done hidden>
+        <p class="display">Thanks, <span data-done-name></span>!</p>
+        <p>Your order will be ready <span data-done-time></span>. Come hungry.</p>
+        <button class="btn btn--ghost" type="button" data-close-basket><span data-text="Close">Close</span></button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="toast" role="status" aria-live="polite" data-toast></div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
