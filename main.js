@@ -4,6 +4,8 @@ import Lenis from 'lenis';
 import { createAvocado } from './avocado.js';
 
 gsap.registerPlugin(ScrollTrigger);
+// mobile URL bar show/hide fires height-only resizes; don't re-layout pins mid-scroll for those
+ScrollTrigger.config({ ignoreMobileResize: true });
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -46,18 +48,21 @@ catch (err) { console.warn('WebGL unavailable, continuing without 3D', err); $('
 // Each section names a pose; poses depend on viewport aspect so the fruit stays framed on phones.
 // The fruit opens like a real one: seam (slice) → twist → apart.
 function poses() {
-  const a = innerWidth / innerHeight, hw = 2.2 * a, m = a < 0.9;
+  const a = avo ? avo.aspect() : innerWidth / innerHeight, hw = 2.2 * a, m = a < 0.9;
   const P = {
-    hero:   m ? { x: 0, y: 0.95, s: 0.6, rx: 0.2, ry: -0.6, rz: -0.25, split: 0, open: 0, pit: 0, sway: 1 }
+    hero:   m ? { x: 0.25, y: 1.12, s: 0.46, rx: 0.2, ry: -0.6, rz: -0.35, split: 0, open: 0, pit: 0, sway: 1 }
               : { x: hw * 0.48, y: -0.15, s: 1.18, rx: 0.2, ry: -0.6, rz: -0.3, split: 0, open: 0, pit: 0, sway: 1 },
     seam:   { x: m ? 0 : hw * 0.18, y: m ? -0.55 : -0.05, s: m ? 0.6 : 1.0, rx: 0.06, ry: 0, rz: 0.08, split: 0.04, open: 0, pit: 0, sway: 0.15 },
     twist:  { x: m ? 0 : -hw * 0.2, y: m ? -0.55 : -0.05, s: m ? 0.6 : 1.0, rx: 0.06, ry: 0.15, rz: -0.06, split: 0.22, open: 0.2, twist: 1.05, pit: 0, sway: 0.1 },
     split:  { x: 0, y: m ? -0.2 : -0.45, s: m ? 0.6 : 0.88, rx: 0.08, ry: 0, rz: 0, split: m ? 0.62 : 1, open: 1, pit: 0, sway: 0.25 },
-    wide:   { x: 0, y: 0, s: m ? 0.5 : 0.95, rx: 0.05, ry: 0, rz: 0, split: (hw * (m ? 0.62 : 0.84)) / (m ? 0.5 : 0.95), open: 0.88, pit: 0, sway: 0.2 },
-    pit:    m ? { x: 0, y: 0.75, s: 0.62, rx: -0.1, ry: -0.2, rz: 0, split: 0.5, open: 1, pit: 1, sway: 0.3 }
+    tuck:   { x: 0, y: m ? 1.55 : 1.25, s: m ? 0.34 : 0.55, rx: 0.08, ry: 0, rz: 0, split: m ? 0.62 : 1, open: 1, pit: 0, sway: 0.25 },
+    wide:   m ? { x: 0, y: 1.22, s: 0.4, rx: 0.05, ry: 0, rz: 0, split: 1.15, open: 0.9, pit: 0, sway: 0.2 }
+            : { x: 0, y: 0, s: 0.95, rx: 0.05, ry: 0, rz: 0, split: (hw * (m ? 0.62 : 0.84)) / (m ? 0.5 : 0.95), open: 0.88, pit: 0, sway: 0.2 },
+    pit:    m ? { x: 0, y: 1.08, s: 0.52, rx: -0.1, ry: -0.2, rz: 0, split: 0.5, open: 1, pit: 1, sway: 0.3 }
               : { x: hw * 0.42, y: 0.2, s: 1.15, rx: -0.1, ry: -0.35, rz: 0.05, split: 0.7, open: 1, pit: 1, sway: 0.3 },
     away:   { x: 0, y: -5.5, s: 0.6, rx: 0.4, ry: 2.2, rz: 0, split: 0, open: 0, pit: 0, sway: 0 },
-    finale: m ? { x: 0, y: 1.3, s: 0.42, rx: 0.15, ry: -0.4, rz: 0.2, split: 0.25, open: 0.4, pit: 0, sway: 1 }
+    exit:   { x: 0, y: 4.2, s: m ? 0.4 : 0.7, rx: 0.3, ry: 1.2, rz: 0, split: 0.1, open: 0.2, pit: 0, sway: 0 },
+    finale: m ? { x: 0, y: 0.15, s: 0.42, rx: 0.15, ry: -0.4, rz: 0.2, split: 0.25, open: 0.4, pit: 0, sway: 1 }
               : { x: 0, y: 0.2, s: 0.85, rx: 0.15, ry: 0, rz: 0.1, split: (hw * 0.62) / 0.85, open: 0.55, pit: 0, sway: 0.6 },
   };
   for (const k in P) P[k].twist ??= 0;
@@ -106,8 +111,7 @@ function tick(now) {
   }
   requestAnimationFrame(tick);
 }
-ScrollTrigger.addEventListener('refresh', measure);
-addEventListener('resize', measure);
+ScrollTrigger.addEventListener('refresh', measure);   // ST refreshes on real (width) resizes
 
 /* ------------------------------------------------------------------ scroll choreography */
 function scrollFx() {

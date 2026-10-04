@@ -115,7 +115,7 @@ function buildHalf(side, skinMat, fleshMat) {
 
 export function createAvocado(canvas, { reduced }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, matchMedia('(pointer: coarse)').matches ? 1.5 : 1.75));   // phones: 3x screens cost too much fill-rate
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.toneMappingExposure = 1.05;
@@ -157,9 +157,15 @@ export function createAvocado(canvas, { reduced }) {
   addEventListener('pointermove', e => { pointer.tx = e.clientX / innerWidth * 2 - 1; pointer.ty = e.clientY / innerHeight * 2 - 1; }, { passive: true });
   let wobble = 0, wobbleV = 0;     // spring driven by scroll velocity → the fruit feels weighty
 
+  // Size from the canvas box (100lvh in CSS), not innerHeight: the mobile URL bar
+  // showing/hiding then doesn't resize the GL buffer or make the fruit jump mid-scroll.
+  let w = 0, h = 0;
   function resize() {
-    renderer.setSize(innerWidth, innerHeight, false);
-    camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+    const cw = canvas.clientWidth, ch = canvas.clientHeight;
+    if (cw === w && ch === h) return;
+    w = cw; h = ch;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
   }
   resize(); addEventListener('resize', resize);
 
@@ -185,10 +191,10 @@ export function createAvocado(canvas, { reduced }) {
     pit.position.y = PIT_Y + cur.pit * 0.35;
     pit.rotation.set(cur.pit * t * 0.8, cur.pit * t * 1.2, 0);
 
-    const visible = cur.s > 0.02 && cur.y > -3.8;
+    const visible = cur.s > 0.02 && cur.y > -3.8 && cur.y < 3.8;
     if (visible || wasVisible) renderer.render(scene, camera);   // skip GPU work while parked offscreen
     wasVisible = visible;
   }
 
-  return { cur, render };
+  return { cur, render, aspect: () => camera.aspect };
 }

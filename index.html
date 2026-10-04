@@ -86,7 +86,7 @@
       <p class="hand">03 — open</p>
       <h2 class="display source__title reveal">The real source<br/>of every bite.</h2>
       <p class="source__lede reveal">Nothing arrives in a packet. If it grew in the ground or on a tree, it can come into our kitchen. Everything else stays outside.</p>
-      <dl class="stats">
+      <dl class="stats" data-pose="tuck">
         <div class="stat reveal"><dt><span data-num="0">0</span>g</dt><dd>refined sugar</dd></div>
         <div class="stat reveal"><dt><span data-num="100">0</span>%</dt><dd>whole ingredients</dd></div>
         <div class="stat reveal"><dt><span data-num="12">0</span></dt><dd>local growers</dd></div>
@@ -137,8 +137,8 @@
       <img class="float" data-speed="0.35" src="assets/img/cut-bean.webp" alt="" style="--x:90%;--y:26%;--s:84px" />
       <img class="float" data-speed="-0.4" src="assets/img/cut-mint.webp" alt="" style="--x:84%;--y:80%;--s:130px" />
       <img class="float" data-speed="0.2" src="assets/img/cut-banana.webp" alt="" style="--x:2%;--y:64%;--s:90px" />
-      <img class="float" data-speed="0.5" src="assets/img/cut-lime.webp" alt="" style="--x:46%;--y:96%;--s:100px" />
-      <img class="float" data-speed="-0.3" src="assets/img/cut-granola.webp" alt="" style="--x:58%;--y:4%;--s:110px" />
+      <img class="float float--mid" data-speed="0.5" src="assets/img/cut-lime.webp" alt="" style="--x:46%;--y:96%;--s:100px" />
+      <img class="float float--mid" data-speed="-0.3" src="assets/img/cut-granola.webp" alt="" style="--x:58%;--y:4%;--s:110px" />
     </section>
 
     <!-- 7. REVIEWS -->
@@ -160,7 +160,7 @@
     <section class="visit" id="visit" data-pose="finale">
       <p class="hand reveal">pull up a chair</p>
       <h2 class="visit__title reveal">Come sit<br/>with us.</h2>
-      <div class="visit__info">
+      <div class="visit__info" data-pose="exit">
         <div class="reveal"><h3>Hours</h3><p>Mon–Fri 7:00–18:00<br/>Sat–Sun 8:00–16:00</p></div>
         <div class="reveal"><h3>Find us</h3><p>Opening soon<br/>in your neighbourhood</p></div>
         <div class="reveal"><h3>Say hello</h3><p><a href="mailto:hello@grounded.cafe">hello@grounded.cafe</a></p></div>
@@ -182,7 +182,7 @@
 
   <aside class="basket" aria-label="Your order" inert>
     <div class="basket__scrim" data-close-basket></div>
-    <div class="basket__panel" role="dialog" aria-modal="true" aria-labelledby="basket-title">
+    <div class="basket__panel" data-lenis-prevent role="dialog" aria-modal="true" aria-labelledby="basket-title">
       <header class="basket__head">
         <h2 id="basket-title" class="display">Your order</h2>
         <button type="button" class="basket__close" data-close-basket aria-label="Close order">&times;</button>
