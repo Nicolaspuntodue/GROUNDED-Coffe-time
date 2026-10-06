@@ -97,7 +97,7 @@ function fleshMaterial() {
   return m;
 }
 
-function buildHalf(side, skinMat, fleshMat) {
+function buildHalf(side, skinMat, fleshMat, cupMat) {
   // side = +1 → half at x ≥ 0 with its cut face pointing -x
   const g = new THREE.Group();
   g.rotation.order = 'YXZ';                 // twist about the cut-plane normal first, then swing open
@@ -107,9 +107,17 @@ function buildHalf(side, skinMat, fleshMat) {
   const shape = new THREE.Shape();
   pts.forEach((p, i) => i ? shape.lineTo(p.x, p.y) : shape.moveTo(p.x, p.y));
   for (let i = pts.length - 1; i >= 0; i--) shape.lineTo(-pts[i].x, pts[i].y);
+  // the stone leaves a real hollow, not a painted circle
+  const hole = new THREE.Path();
+  hole.absellipse(0, PIT_Y, PIT_R, PIT_R * 1.1, 0, Math.PI * 2, false);
+  shape.holes.push(hole);
   const faceGeo = new THREE.ShapeGeometry(shape, 64);
   faceGeo.rotateY(side > 0 ? -Math.PI / 2 : Math.PI / 2);
-  g.add(skin, new THREE.Mesh(faceGeo, fleshMat));
+  const cup = new THREE.Mesh(new THREE.SphereGeometry(PIT_R, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2), cupMat);
+  cup.rotation.z = -side * Math.PI / 2;          // bowl sinks into this half, opening on the cut face
+  cup.scale.set(1.1, 0.9, 1);                    // local y = depth after the turn; x stretches it along the fruit
+  cup.position.y = PIT_Y;
+  g.add(skin, new THREE.Mesh(faceGeo, fleshMat), cup);
   return g;
 }
 
@@ -135,13 +143,15 @@ export function createAvocado(canvas, { reduced }) {
   const bump = skinBump();
   const skinMat = new THREE.MeshPhysicalMaterial({ map: skinColor(), roughness: 0.55, bumpMap: bump, bumpScale: 9, clearcoat: 0.5, clearcoatRoughness: 0.42, sheen: 0.5, sheenColor: new THREE.Color('#8fae4a') });
   const fleshMat = fleshMaterial();
-  const pitMat = new THREE.MeshPhysicalMaterial({ map: pitColor(), roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.12, bumpMap: bump, bumpScale: 1 });
+  const pitMat = new THREE.MeshPhysicalMaterial({ map: pitColor(), roughness: 0.42, clearcoat: 0.45, clearcoatRoughness: 0.3, bumpMap: bump, bumpScale: 0.6 });
+  // inside of the hollow: paler, waxy flesh
+  const cupMat = new THREE.MeshPhysicalMaterial({ color: '#E4D47E', roughness: 0.45, clearcoat: 0.4, clearcoatRoughness: 0.4, side: THREE.BackSide, bumpMap: fleshBump(), bumpScale: 0.4 });
 
   const root = new THREE.Group();
-  const halfL = buildHalf(-1, skinMat, fleshMat);
-  const halfR = buildHalf(1, skinMat, fleshMat);
+  const halfL = buildHalf(-1, skinMat, fleshMat, cupMat);
+  const halfR = buildHalf(1, skinMat, fleshMat, cupMat);
   const pit = new THREE.Mesh(new THREE.SphereGeometry(PIT_R * 0.97, 64, 48), pitMat);
-  pit.scale.set(1, 1.1, 1);
+  pit.scale.set(0.97, 1.1, 0.95);
   pit.position.set(0, PIT_Y, 0);
   halfR.add(pit);
   // little woody stem nub at the tip
@@ -150,6 +160,14 @@ export function createAvocado(canvas, { reduced }) {
   halfL.add(stem);
   root.add(halfL, halfR);
   scene.add(root);
+  const shadowTex = canvasTex(g => {
+    const grd = g.createRadialGradient(256, 256, 0, 256, 256, 256);
+    grd.addColorStop(0, 'rgba(40,34,14,.55)'); grd.addColorStop(0.45, 'rgba(40,34,14,.22)'); grd.addColorStop(1, 'rgba(40,34,14,0)');
+    g.fillStyle = grd; g.fillRect(0, 0, 512, 512);
+  }, [1, 1], true);
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 2.4),   // camera-facing ellipse: reads as a soft shadow on the page
+    new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false, toneMapped: false }));
+  scene.add(shadow);
 
   // Pose state — every field is scroll-driven from main.js
   const cur = { x: 0, y: 0, z: 0, s: 0, rx: 0, ry: 0, rz: 0, split: 0, open: 0, twist: 0, pit: 0, sway: 1 };
@@ -169,9 +187,10 @@ export function createAvocado(canvas, { reduced }) {
   }
   resize(); addEventListener('resize', resize);
 
-  let wasVisible = true;
+  let wasVisible = true, lastT = 0, pitSpin = 0;
   function render(time, velocity = 0) {
     const t = time / 1000;
+    const dt = Math.min(0.05, t - lastT || 0); lastT = t;
     pointer.x += (pointer.tx - pointer.x) * 0.05; pointer.y += (pointer.ty - pointer.y) * 0.05;
     const sw = reduced ? 0 : cur.sway;
     if (!reduced) {
@@ -181,7 +200,7 @@ export function createAvocado(canvas, { reduced }) {
 
     root.position.set(cur.x, cur.y + Math.sin(t * 1.1) * 0.05 * sw, cur.z);
     root.scale.setScalar(cur.s * (1 + Math.sin(t * 2.2) * 0.006 * sw));
-    root.rotation.set(cur.rx + pointer.y * 0.12 + wobble * 0.6, cur.ry + Math.sin(t * 0.5) * 0.45 * sw + pointer.x * 0.25, cur.rz + wobble);
+    root.rotation.set(cur.rx + pointer.y * 0.12 + wobble * 0.6, cur.ry + Math.sin(t * 0.5) * 0.28 * sw + pointer.x * 0.25, cur.rz + wobble);
 
     halfR.position.x = cur.split; halfL.position.x = -cur.split;
     halfR.rotation.y = cur.open * 1.5; halfL.rotation.y = -cur.open * 1.5;
@@ -189,7 +208,14 @@ export function createAvocado(canvas, { reduced }) {
     halfR.position.z = halfL.position.z = -cur.open * 0.25;
     pit.position.x = -cur.pit * 0.95;               // local -x = out of the cut face, toward camera once opened
     pit.position.y = PIT_Y + cur.pit * 0.35;
-    pit.rotation.set(cur.pit * t * 0.8, cur.pit * t * 1.2, 0);
+    if (!reduced) pitSpin += dt * cur.pit * 0.45;
+    pit.rotation.set(pitSpin * 0.6, pitSpin, 0);
+
+    // shadow tracks the fruit, spreads as the halves part, fades as it lifts off the page
+    const lift = Math.sin(t * 1.1) * 0.05 * sw;            // same idle bob as the fruit
+    shadow.position.set(cur.x, cur.y - 1.25 * cur.s, cur.z - 1.2);
+    shadow.scale.set(cur.s * (1 + cur.split * 0.9) * (1 - lift), cur.s * 0.16, 1);
+    shadow.material.opacity = 0.7 - lift * 2 - cur.open * 0.2;
 
     const visible = cur.s > 0.02 && cur.y > -3.8 && cur.y < 3.8;
     if (visible || wasVisible) renderer.render(scene, camera);   // skip GPU work while parked offscreen

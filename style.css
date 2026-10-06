@@ -210,7 +210,7 @@ section { padding: var(--s10) var(--gutter); }
 
 /* Footer */
 .footer { background: var(--avo); color: var(--cream); padding: var(--s8) var(--gutter) var(--s6); overflow: hidden; }
-.footer__big { font: 900 clamp(64px, 18.5vw, 340px)/.8 var(--f-display); font-variation-settings: "SOFT" 100; letter-spacing: -.04em; color: var(--flesh); text-align: center; white-space: nowrap; }
+.footer__big { font: 900 clamp(64px, 16vw, 330px)/.8 var(--f-display); font-variation-settings: "SOFT" 100; letter-spacing: -.04em; color: var(--flesh); text-align: center; white-space: nowrap; }
 .footer__row { display: flex; justify-content: space-between; gap: var(--s4); flex-wrap: wrap; margin-top: var(--s6); font-size: 14px; }
 .footer__row p { margin: 0; }
 

@@ -54,7 +54,7 @@ function poses() {
               : { x: hw * 0.48, y: -0.15, s: 1.18, rx: 0.2, ry: -0.6, rz: -0.3, split: 0, open: 0, pit: 0, sway: 1 },
     seam:   { x: m ? 0 : hw * 0.18, y: m ? -0.55 : -0.05, s: m ? 0.6 : 1.0, rx: 0.06, ry: 0, rz: 0.08, split: 0.04, open: 0, pit: 0, sway: 0.15 },
     twist:  { x: m ? 0 : -hw * 0.2, y: m ? -0.55 : -0.05, s: m ? 0.6 : 1.0, rx: 0.06, ry: 0.15, rz: -0.06, split: 0.22, open: 0.2, twist: 1.05, pit: 0, sway: 0.1 },
-    split:  { x: 0, y: m ? -0.2 : -0.45, s: m ? 0.6 : 0.88, rx: 0.08, ry: 0, rz: 0, split: m ? 0.62 : 1, open: 1, pit: 0, sway: 0.25 },
+    split:  { x: 0, y: m ? -0.6 : -0.45, s: m ? 0.6 : 0.88, rx: 0.08, ry: 0, rz: 0, split: m ? 0.62 : 1, open: 1, pit: 0, sway: 0.25 },
     tuck:   { x: 0, y: m ? 1.55 : 1.25, s: m ? 0.34 : 0.55, rx: 0.08, ry: 0, rz: 0, split: m ? 0.62 : 1, open: 1, pit: 0, sway: 0.25 },
     wide:   m ? { x: 0, y: 1.22, s: 0.4, rx: 0.05, ry: 0, rz: 0, split: 1.15, open: 0.9, pit: 0, sway: 0.2 }
             : { x: 0, y: 0, s: 0.95, rx: 0.05, ry: 0, rz: 0, split: (hw * (m ? 0.62 : 0.84)) / (m ? 0.5 : 0.95), open: 0.88, pit: 0, sway: 0.2 },
@@ -93,18 +93,23 @@ function targetPose(scroll) {
   return anchors[anchors.length - 1].pose;
 }
 const intro = { v: 0 };
+// [stiffness rad/s, damping ratio]; < 1 settles with a small, natural overshoot
+const SPRING = { base: [7, 0.95], split: [9, 0.62], open: [8, 0.7], twist: [9, 0.6], pit: [8, 0.5] };
+const vel = Object.fromEntries(KEYS.map(k => [k, 0]));
 let last = performance.now();
 function tick(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   if (avo) {
     const tp = targetPose(lenis ? lenis.animatedScroll : scrollY);
     if (tp) {
-      const k = 1 - Math.exp(-dt * 7);
+      // springs instead of a plain ease: the fruit has weight, the halves give a little as they part
       for (const key of KEYS) {
         let goal = tp[key];
         if (key === 's') goal *= intro.v;
         if (key === 'ry') goal += (1 - intro.v) * -2.5;
-        avo.cur[key] += (goal - avo.cur[key]) * k;
+        const [w, z] = SPRING[key] || SPRING.base;
+        vel[key] += (w * w * (goal - avo.cur[key]) - 2 * z * w * vel[key]) * dt;
+        avo.cur[key] += vel[key] * dt;
       }
     }
     avo.render(now, lenis ? lenis.velocity : 0);
@@ -137,8 +142,11 @@ function scrollFx() {
   // horizontal menu: pin and translate the track
   const track = $('[data-track]');
   const dist = () => Math.max(0, track.scrollWidth - innerWidth);
-  gsap.to(track, { x: () => -dist(), ease: 'none',
+  const pan = gsap.to(track, { x: () => -dist(), ease: 'none',
     scrollTrigger: { trigger: '.menu', pin: true, start: 'top top', end: () => '+=' + dist(), scrub: 1, invalidateOnRefresh: true } });
+  // photos drift inside their frames as the cards slide past (the img is 115% tall for this)
+  $$('.card__img img', track).forEach(img => gsap.fromTo(img, { yPercent: -13 }, { yPercent: 0, ease: 'none',
+    scrollTrigger: { trigger: img.parentElement, containerAnimation: pan, start: 'left right', end: 'right left', scrub: true } }));
 
   // statement parallax
   $$('.statement__img img').forEach(img => gsap.fromTo(img, { yPercent: -15 }, { yPercent: 0, ease: 'none',
